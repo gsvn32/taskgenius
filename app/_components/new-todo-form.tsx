@@ -1,23 +1,31 @@
 import { useState } from "react";
 import { PriorityLevel } from "../page";
+import { useMutation } from "convex/react";
 import moment from 'moment';
+import { api } from "@/convex/_generated/api";
+import Moment from 'react-moment';
 
 type TodoFormProps = {
     onCreate: (title: string, description: string, completed:boolean,
         datecreated:Date,
         targetdate?:Date,
-        priority?:String)=>void;
+        priority?:string)=>void;
 }
-export function NewTodoForm({onCreate}: TodoFormProps){
+export function NewTodoForm(){
     const [title,setTitle] = useState("");
     const [description,setDescription] = useState("");
     const [targetdate,setTargetdate] = useState();
-    const [priority,setPriority] = useState<String>(PriorityLevel.NONE);
+    const [priority,setPriority] = useState<string>(PriorityLevel.NONE);
     
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const createTodo = useMutation(api.functions.createTodo);
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       console.log("in handle");
+      var completed=false;
+      var datecreatedT = moment(new Date(Date.now()));
+      var datecreated=datecreatedT.format("MM-DD-YYYY")
+      var targetdate = "Not Given";
       e.preventDefault();
-      onCreate(title,description,false, new Date(Date.now()),targetdate,priority )
+      await createTodo({title,description,completed,datecreated,targetdate,priority })
       setTitle("");
       setDescription("");
       
